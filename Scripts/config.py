@@ -139,3 +139,6 @@ Cities = [
                 "Longitude": 9.109320
             },
 ]
+
+HistoricalWeatherURL = "https://archive-api.open-meteo.com/v1/archive"
+HistoricalAirQualityURL = "https://air-quality-api.open-meteo.com/v1/air-quality"
