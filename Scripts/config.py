@@ -140,5 +140,44 @@ Cities = [
             },
 ]
 
+PairsIDsToDo = [["AO", "TO"],
+                ["AO", "TN"],
+                ["AO", "MI"],
+                ["TO", "MI"],
+                ["TO", "GE"],
+                ["MI", "GE"],
+                ["MI", "TN"],
+                ["MI", "BO"],
+                ["MI", "VE"],
+                ["GE", "BO"],
+                ["GE", "FI"],
+                ["TN", "VE"],
+                ["TN", "TS"],
+                ["VE", "TS"],
+                ["VE", "BO"],
+                ["BO", "AN"],
+                ["BO", "FI"],
+                ["FI", "RM"],
+                ["FI", "PG"],
+                ["FI", "AN"],
+                ["PG", "AN"],
+                ["PG", "AQ"],
+                ["PG", "RM"],
+                ["AN", "AQ"],
+                ["RM", "AQ"],
+                ["RM", "NA"],
+                ["RM", "CB"],
+                ["AQ", "CB"],
+                ["NA", "CB"],
+                ["NA", "PZ"],
+                ["CB", "BA"],
+                ["CB", "PZ"],
+                ["PZ", "BA"],
+                ["PZ", "CZ"],
+                ["CZ", "PA"],
+                #["PA", "CA"]
+               ]
+#It took less than 5 Minutes.
+
 HistoricalWeatherURL = "https://archive-api.open-meteo.com/v1/archive"
 HistoricalAirQualityURL = "https://air-quality-api.open-meteo.com/v1/air-quality"
