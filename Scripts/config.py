@@ -179,5 +179,27 @@ PairsIDsToDo = [["AO", "TO"],
                ]
 #It took less than 5 Minutes.
 
+CitiesSubRegion = [["AO", "North"],
+                   ["TN", "North"],
+                   ["TO", "North"],
+                   ["MI", "North"],
+                   ["TS", "North"],
+                   ["VE", "North"],
+                   ["GE", "North"],
+                   ["FI", "Center"],
+                   ["AN", "Center"],
+                   ["BO", "Center"],
+                   ["PG", "Center"],
+                   ["RM", "Center"],
+                   ["CA", "Center"],
+                   ["NA", "South"],
+                   ["AQ", "South"],
+                   ["CB", "South"],
+                   ["BA", "South"],
+                   ["PZ", "South"],
+                   ["CZ", "South"],
+                   ["PA", "South"]
+                  ]
+
 HistoricalWeatherURL = "https://archive-api.open-meteo.com/v1/archive"
 HistoricalAirQualityURL = "https://air-quality-api.open-meteo.com/v1/air-quality"

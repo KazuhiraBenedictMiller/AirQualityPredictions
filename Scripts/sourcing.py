@@ -117,13 +117,17 @@ def MergeDF(Weather_df:pd.DataFrame, AQI_df:pd.DataFrame) -> pd.DataFrame:
     else:
         raise DataMergingError("There was an error in Merging the Historical Weather and AQI Data, the Length of the DataFrames are not the same!!")
 
-def FetchHistoricalData():
+def FetchHistoricalData(DumpToDisk:bool) -> pd.DataFrame:
     '''
     Main Function that's gonna Fetch Historical Data for both Weather and Air Quality.
     Our Start Date is set at the 1st September 2022.
     Our End Date is set at the 29th February 2024.
     For Every City in our List of Cities, we Pass the Parameters to the Above Functions and return DataFrames, later on Merged and Dumped to Disk.
+    NOTE: In case the DumpToDisk parameter is set to true, it's going to Dump to Disk the files, otherwise, it will simply return a Merged MaxiDF with all the Raw Data for all our
+    requested Cities.
     '''
+    
+    GiganticDF = pd.DataFrame()
     
     Cities = config.Cities
     StartDate = "01092022"
@@ -177,15 +181,52 @@ def FetchHistoricalData():
             
             Merged_df = MergeDF(FetchWeatherData(city, Weather_params), FetchAirQualityData(city, AQI_params))
             
-            #print("-----------------------------------------------------")        
-            print("Dumping Data to Disk!!")
-            #print("-----------------------------------------------------")
+            if DumpToDisk:
+                
+                #print("-----------------------------------------------------")        
+                print("Dumping Data to Disk!!")
+                #print("-----------------------------------------------------")
 
-            Merged_df.to_parquet(paths.RAW_DATA_DIR / f'{city["CityName"]}_HistoricalData_01092022_29022024.parquet')
+                Merged_df.to_parquet(paths.RAW_DATA_DIR / f'{city["CityName"]}_HistoricalData_01092022_29022024.parquet')
 
+            GiganticDF = pd.concat([GiganticDF, Merged_df])
+            
             #Required so we won't ping the OpenMeteo API too much!!
             time.sleep(5)
             
+def FetchFromDisk() -> pd.DataFrame:
+    '''
+    Dummy Function used to gather all Data on Disk, concat them in a GiganticDF and then returning it.
+    '''
+        
+    GiganticDF = pd.DataFrame()
+    Cities = config.Cities
+    
+    for file in os.listdir(paths.RAW_DATA_DIR):
+        if file.endswith(".parquet"):
+            #Splitting the FileName for '_' character and then getting the first item in the list as it's going to be the correspective name of the city.
+            CityName = file.split("_")[0]
+            print(f'Fetching Raw Data from Disk in Raw Data Dir for {CityName}')
+
+            #Get the City ID for given City from Cities List
+            CityID = next((x["CityID"] for x in Cities if x["CityName"] == CityName), None)
+            print(f'Got City ID {CityID}')
+
+            TempCityDF = pd.read_parquet(paths.RAW_DATA_DIR / file)
+
+            #Moving the CityID Column as First
+            TempCityDF["CityID"] = CityID
+            CityIDColumn = TempCityDF.pop("CityID")
+            TempCityDF.insert(0, "CityID", CityIDColumn)
+
+            #A Shorter Single-Liner
+            #TempCityDF.insert(0, "CityID", [CityID for x in range(len(TempCityDF))])
+
+            #print(TempCityDF.head())
+
+            GiganticDF = pd.concat([GiganticDF, TempCityDF])
+    
+    return GiganticDF
             
-if __name__ == "__main__":
-    FetchHistoricalData()
+#if __name__ == "__main__":
+    #FetchHistoricalData(DumpToDisk = False)
