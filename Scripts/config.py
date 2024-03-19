@@ -1,3 +1,8 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv("../.env")
+
 Cities = [
             {
                 "CityID": "AO",
@@ -203,3 +208,9 @@ CitiesSubRegion = [["AO", "North"],
 
 HistoricalWeatherURL = "https://archive-api.open-meteo.com/v1/archive"
 HistoricalAirQualityURL = "https://air-quality-api.open-meteo.com/v1/air-quality"
+
+MariaDBUser = str(os.environ["MARIADB_USER"])
+MariaDBUserPassword = str(os.environ["MARIADB_PASSWORD"])
+MariaDBDatabase = str(os.environ["MARIADB_DBNAME"])
+MariaDBHost = str(os.environ["MARIADB_CONTAINERIP"])
+MariaDBPort = int(os.environ["MARIADB_CONTAINERPORT"])
