@@ -29,5 +29,7 @@ FillEnvFile:
 SetupMariaContainer:
 	@./Bash/SetupMariaContainer.sh
 
+BackfillMariaDB:
+	@python3 ./Scripts/backfillmariadb.py
 
 

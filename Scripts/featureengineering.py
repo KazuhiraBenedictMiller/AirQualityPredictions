@@ -56,17 +56,14 @@ def EngineerWholeDF(GiganticDF:pd.DataFrame) -> pd.DataFrame:
 
     #Season Feature Engineering 
     DF["Season"] = DF["Date"].apply(lambda x: "Winter" if ((x.month >= 12 and x.day >= 21) or (x.month < 3) or (x.month == 3 and x.day <= 20)) 
-                                        else "Spring" if ((x.month >= 3 and x.day >= 21) or (x.month < 6) or (x.month == 6 and x.day <= 20))  
-                                        else "Summer" if ((x.month >= 6 and x.day >= 21) or (x.month < 9) or (x.month == 9 and x.day <= 22)) 
-                                        else "Autumn" if ((x.month >= 9 and x.day >= 23) or (x.month < 12) or (x.month == 12 and x.day <= 20)) 
-                                        else "NoSeasonFound")
+                                                       else "Spring" if ((x.month >= 3 and x.day >= 21) or (x.month < 6) or (x.month == 6 and x.day <= 20))  
+                                                       else "Summer" if ((x.month >= 6 and x.day >= 21) or (x.month < 9) or (x.month == 9 and x.day <= 22)) 
+                                                       else "Autumn" if ((x.month >= 9 and x.day >= 23) or (x.month < 12) or (x.month == 12 and x.day <= 20)) 
+                                                       else "NoSeasonFound")
 
     #Quick Check
     if "NoSeasonFound" in list(DF):
         raise DataIntegrityError("There's been an Error in Categorizing Data in Seasons!!")
-
-    else:
-        print("Check Passed, Datetimes correctly Transformed in Seasons!")
     
     #Hour Feature Engineering - Then Dropping the Column Date
     DF["Hour"] = DF["Date"].apply(lambda x: x.hour)

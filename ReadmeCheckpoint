@@ -1,0 +1,272 @@
+
+<div align="center">
+    <h1>End-to-End Air Quality Prediction Service</h1>
+    <i>An Online End-to-End Machine Learning Service for Batch Predicting Air Quality on a Daily Basis.</i>
+</div>
+
+<br />
+
+<div align="center">
+    Let's connect  on <a href="https://www.linkedin.com/in/andrea-amedeo.serravalle/">LinkedIn</a> 🤗
+</div>
+
+# Welcome!
+
+Here's an End-to-End Machine Learning Solution for Predicting Italian Air Quality on a Daily Basis through a Batch Scoring System.
+I'll also wrote a Step by Step Guide/Tutorial of how I decided to build the project.
+
+## How does it Work?
+
+This Project aims to cover the basic for setting up and deliver a Multi-Node Containerized application for a Batch Scoring System that with the help of a make file can be deployed in a few click on a Server Instance.
+<br>
+The Containers for the Application will be as follow:
+
+```
+Containers   
+│
+└─── Apache Airflow     ← For Managing Batch ETL and Scheduled Jobs
+│
+└─── MariaDB            ← For Storing Data
+│
+└─── FastAPI            ← For Serving the Model as an API
+│
+└─── Streamlit          ← For the Interactive Dashboard
+```
+
+## The Repo Folders:
+
+dkfjdkfjd
+
+## The Problem:
+
+This Project aims to be a sort of Tutorial for practicing Full Stack MLOps, from Data Sourcing to Optimization after Monitoring.
+The Real-World Problem it tries to fix is simply to provide a dashboard with Daily Predictions for the whole day of Air Quality for the whole Italian Territory, highlighting where the Air Quality is going to get worse throughout the day.
+Since I am not a Climate Scientist, I'll make the assumption that there is a correlation between Weather Conditions and Air Quality, for the sake of actually building the End-to-End Project.
+
+## Explanatory Tutorial:
+
+First things first, let's spin up a Development Container with Ubuntu in it, making local development a breeze.
+
+The Dockerfile can be found at:
+	
+	/Dockerfiles/Dockerfile.ubuntudev
+
+We'll run the Container with the above Dockerfile, but we'll also mount a volume for actually sharing both Data and requirements.
+To do that, we'll spin up the container as follows.
+
+	> $ sudo docker build -t ubuntudev . -f ./Dockerfiles/Dockerfile.ubuntudev 
+	> $ sudo docker run --name ubuntudev -p 8888:8888 -i -t -d -v ./:/localsynch ubuntudev
+	
+Then, to eventually Install Packages:
+
+	> $ sudo docker exec -i -t -u root ubuntudev /bin/bash
+	> $ pip install WHATEVER_PACKAGE_YOU_WANT
+
+Now that we have a local development isolated Environment, let's start prototyping with some Jupyter Notebooks.
+
+In the First Notebook, we'll simply see how to fetch data from the APIs we'll be using and we'll see how data is formatted and how we can use it.
+
+<u>01_DataSourcing</u>
+
+	First, we need to define for which cities we would like to get the informations.
+	So, we'll define (Sadly, manually) them in an external file named config.py and import the List of cities with relative informations.
+	
+	Then, we'll download a batch Hourly Historical Data from the OpenMeteo API for both Weather and Air Quality Data.
+	
+	After an Initial Check the Data is then going to be dumped onto Disk ready for future Usage.
+
+Before moving on with other Notebooks we need to refactor our code for future usage and for better later deployment:
+
+<u>First Code Refactoring</u>
+	
+	In the first Code Refactoring, We'll simply create a Script (sourcing.py) that does what the First Notebook does in a more code-efficient way.
+	We'll use this Script later on for setting up the infrastructure from 0 with one-click deployment.
+	
+	Summary:
+	- Added Historical Data URLs in config.py
+	- Created sourcing.py that Fetches Historical Data and Populates Disk with Raw Data.
+
+Next Up, we need to do some Exploratory Data Analysis.
+
+<u>02_ExploratoryDataAnalysis</u>
+
+	After loading all Data that has been previously Dumped to Disk, we did some basic Exploratory Data Analysis, that confirms a bit our assumptions.
+	Without digging too deep into the Data, let' move on with Feature Engineering.
+	If you want, you can always get more Data from OpenMeteo.com's API and do more EDA.
+	
+Now, we can simply move on with our next notebook as code refactoring is not needed for this Section.
+
+<u>03_PlottingData</u>
+	
+	In our Third Notebook, we explored plotting techniques or our Geographical Data.
+	We also discussed what best practices we could follow and we also generated some Synthetic Data to fill our plotted Map.
+	Without Over-Engineering Visualizations (Which is important, but not at this stage) we managed to end up with a compelling - yet understandable and useful - graphic.
+	Now, time to refactor our code!!
+
+<u>Third Code Refactoring</u>
+
+	In the Third Code Refactoring, We created a Script (plot.py) that does what the Third Notebook does in a more code-efficient way.
+	We'll use this Script later to generate Maps with Markers, Synthetic Data and Heatmap Data on-demand, and to do that, we initialized a Function GenerateMap that does exactly that.
+	
+	Summary:
+	- Added PairsIDsToDo (list of City Pairs needed to generate our Synthethic Data) in config.py
+	- Created plot.py that Generate and Returns Maps on Demand.
+
+
+<u>04_FeatureEngineering</u>
+	
+	In the Fourth Notebook, we did some basic Feature Engineering.
+	When Feature Engineering this Data, we need to keep in mind that we could have also treat it as a Time-Series and/or seek for more Data, particularly Agricultural and Industrial Data.
+	When considering additional Data, it may also be wise to not calculate the EuropeanAQI in its integrity, but to rather create X different models, each of which is going to calculate different particles contributing to the EuropeanAQI.
+	However, since I am no Climate Scientist, I decided to keep it basic, encoding Dates into Seasons and hour of day, and lastly, to encode them as dummy variables.
+	The reason for that is, that as long as I want to keep things easy here (this is a Project to merely showcase my skills) and without additional Data, I am confident in the fact that Industrial and Agricultural Productions are different in each Season and that during different hours of the day there are different traffic ingestions in highly populated cities (when people goes to work or back home).
+	Doing so, we can have additional insights into our Data without the need to over-engineer the Project.
+	Now, time to refactor our code.
+
+<u>Fourth Code Refactoring</u>
+
+	In this Code Refactoring, we need to write several functions that are going to be employed in both the first setup (first run of the script for backfilling) and on an Hourly Basis with a single Data Point (Batch Streaming - Get Data every hour -> transform Data -> make predictions -> Push Data to DB/FS).
+	
+	Summary:
+	- Added CitiesSubRegion (list of City Paired with respective Italian SubRegion) in config.py
+	- Created featureengineering.py to Engineer our Feature given a DataSet, with Functions for working with both a Gigantic DataFrame and a SingleRecord.
+	- Tweaked functions in sourcing.py and added one function to Fetch Data from Disk.
+	NOTE: Dates get completely Dropped during Feature Engineering, save them somewhere for later if you need to plot.
+
+Now, time to setup our DB and Fill it!
+
+<u>05_SetupMariaDB</u>
+
+Before jumping into our fifth Notebook, we need to build the Image and spin up a Container for our MariaDB Instance.
+As the Image is already on DockerHub and perfectly functioning, we can simply Spin up a Container.
+
+**⚠️ NOTE:** we don't need to build the Image AND we don't even need to pull it from DockerHub since when Spinning up the Container it's automatically pulled if not found locally.
+
+Let's get the Container up and running, like so:
+
+	> $ sudo docker run -p 3306:3306 --name mariadb -e MARIADB_ROOT_PASSWORD=password -d mariadb:latest
+
+This is going to get us a Development Container running.
+Now, let's create an user with privileges to work on our DB Server and create a Database:
+
+	> $ sudo docker exec -i -t mariadb mariadb -u root -ppassword
+	> CREATE USER 'dev'@'%' IDENTIFIED BY 'development';
+	> GRANT ALL PRIVILEGES ON *.* TO 'dev'@'%' IDENTIFIED BY 'development' WITH GRANT OPTION;
+	> CREATE DATABASE AQIPredictions;
+	> FLUSH PRIVILEGES;
+	> exit
+	> $ sudo docker restart mariadb
+
+Now that our Container is perfectly Functioning, we'll also need to install the MariaDB Python Connector on our Development Container.
+Get into the Development Container Terminal and then:
+
+	> $ apt-get update && apt-get upgrade -y
+
+Then:
+
+	> $ apt  install  libmariadb3  libmariadb-dev
+	> $ pip install mariadb
+
+**⚠️ NOTE:** To connect to the MariaDB Instance running LOCALLY but on the Container, you'll need to get the Container IP Address:
+
+	> $ sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mariadb
+
+Now, we're set to go! 
+Let's get into our Fifth Notebook!
+
+	In this Fifth Notebook, we created 2 Tables in our Development Database.
+	First Table is for our RawData, while the Second one is for our Transformed one.
+	We also inserted our Data with the MariaDB connector in an automated fashon.
+
+Now, we need to refactor our code:
+
+<u>Fifth Code Refactoring</u>	
+
+	This Code Refactiìorng is our first refactoring that's a bit complex.
+	First of all, in our 5th Notebook we created 2 different Test Tables to test out a Database Setup.
+	In this Code Refactoring, we'll also start to build up our set of Bash Scripts and the Makefile we'll need later to fire things up with a single click.
+	
+	NOTE: The Bash Scripts and the Makefile are going to be updated in the coming Code Refactoring.
+	
+	Now, we need to make a bash script, that when loaded (with a Makefile Possibly), reads the .env file, and then sets up the whole thing.
+	To do so, we first need to create a Bash Script, that once is the Docker Container (named mariadb) is fired, it loads MARIADB_ROOTUSER, MARIADB_ROOTPASSWORD and MARIADB_DBNAME from the .env file, it docker exec into it as the MariaDB root user.
+	Then, it also loads the MARIADB_USER, MARIADB_PASSWORD from the .env file, and after that, it creates the user (the one we'll be using), grant it permissions and creates the Database.
+
+		
+	Summary:
+	
+	- Created Bash Folder containing all Bash Scripts for the project.
+	- Created SetupMariaContainer Bash Script that initialize the Database and create the User in the Containerized MariaDB instance.
+	- Created MariaDBContainerIPPort Bash Script that Dinamically fill the env file with the MariaDB Container IP Address and Port.
+	- Created Makefile for Deployement automation.
+	- Created ExecutableBash make in Makefile to mark all Bash Scripts in Bash folder as executable (mandatory to do if you want to run them)
+	- Created FillEnvFile make in Makefile to Execute MariaDBContainerIPPort.sh.
+	- Created SetupMariaContainer make in Makefile to Execute SetupMariaContainer.sh.
+	- Added MariaDB [User, Password, DBName, Host, Port] Parameters to config.py
+	- 
+
+
+
+	
+## Wrapping Up:
+
+```
+air_quality   
+│   1_backfill_feature_groups.ipynb           ← 
+│   2_queries_and_merging.ipynb                     ← notebook for merging the data and creating the training dataset
+│   3_training.ipynb                                ← notebook for training our models
+│   AirParticle_Forest.pkl                          ← saved RandomForestRegressor model for PM10 
+│   Gradient Duster.pkl                             ← saved GradientBooster model for PM10 
+│   PM10Lasso.pkl                                   ← saved Lasso model for PM10
+│   README.md
+│   requirements.txt                                ← requirements for the whole project 
+│   streamlit_app.py                                ← streamlit application source
+│
+└───data_poland                                     ← Air Quality Data, Weather Data, City Meta Data
+│   │   meta.xlsx                                   ← meta information about the selected cities
+│   │   visualize.ipynb
+│   │
+
+```
+
+
+
+
+The Core of the Project relies in the **3-Pipelines** approach:
+
+### • The ETL Pipeline - AKA Feature Pipeline
+
+On Every Hour the ETL Pipeline (Scheduled by Airflow) gets triggered and Fetches the Previous Data Point, as we need Closing Prices of the Hour, hence, the last price before the new hour ticks in.
+The Fetched Data Point, get Transformed and pushed to a Local MariaDB Database.
+
+### • The Prediction Pipeline - AKA Inference Pipeline
+
+Always on every hour, the Prediction Pipeline gets triggered too and Predicts the Next incoming Data Point with a LightGBM Model.
+The Predictions gets then pushed into a different table to the Local MariaDB.
+
+### • The ReTraining Pipeline - AKA Training Pipeline
+
+Every 23:30 of every Sunday, the Retraining Pipeline gets triggered and ReTrains a new model.
+This new model, gets stored in a Model Store alongside all the models that have been trained by the Pipeline.
+Lastly, the Pipeline, Computes an Error Measurement for every Model in the Store, picks the best one in terms of metrics and pushes it to Production.
+
+## FlowCharts
+
+<img
+  src="./ETLPipeline.png">
+
+<hr>
+  
+  
+
+<img  
+  src="./TrainingPipeline.png">
+<img
+  src="./InferencePipeline.png">
+
+<hr>
+
+<img
+  src="./TrainingPipeline.png">
+
+

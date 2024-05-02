@@ -212,5 +212,7 @@ HistoricalAirQualityURL = "https://air-quality-api.open-meteo.com/v1/air-quality
 MariaDBUser = str(os.environ["MARIADB_USER"])
 MariaDBUserPassword = str(os.environ["MARIADB_PASSWORD"])
 MariaDBDatabase = str(os.environ["MARIADB_DBNAME"])
+MariaDBRawTableName = str(os.environ["MARIADB_RAWTABLE"])
+MariaDBTransformedTableName = str(os.environ["MARIADB_FETABLE"])
 MariaDBHost = str(os.environ["MARIADB_CONTAINERIP"])
 MariaDBPort = int(os.environ["MARIADB_CONTAINERPORT"])
