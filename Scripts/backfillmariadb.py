@@ -124,7 +124,13 @@ def DefineFeaturesSchema(GigaDF:pd.DataFrame) -> (dict, str):
     return DataFormat, NameFormats
 
 def CreateBackfillMariaDBTable(cursor:mdb.Cursor, connection:mdb.Connection, TableName:str, Data:pd.DataFrame, Schema:dict, StringSchema:str):
-
+    '''
+    Function that Takes several different Inputs:
+    cursor and connection to connect to the Mariadb DB
+    TableName, Schema and StringSchema for Declaring and Creating the Table
+    Schema is also used for building up the query to insert our data.
+    '''
+    
     #Create Table
     
     cursor.execute(f'CREATE TABLE IF NOT EXISTS {TableName} ({StringSchema})')
@@ -159,20 +165,24 @@ def CreateBackfillMariaDBTable(cursor:mdb.Cursor, connection:mdb.Connection, Tab
         
     connection.commit()
     
-    assert CheckDataInsertedIntegrity(cursor, connection, TableName, len(Data)) == 1, "Data Inserted Integrity Check Failed!!"
+    assert CheckDataInsertedIntegrity(cursor, connection, TableName, len(Data)) == True, "Data Inserted Integrity Check Failed!!"
     
     print(f'Data Correctly Inserted into {TableName} Table!!')
     
-def CheckDataInsertedIntegrity(cursor, connection, TableName:str, DataSize:int):    
+def CheckDataInsertedIntegrity(cursor, connection, TableName:str, DataSize:int) -> bool:    
+    '''
+    Simple Function to Check that the Data has been correctly inserted into the DB Table.
+    Returns True if successful, otherwise False.
+    '''
     #Checking the Data
     cursor.execute(f'SELECT COUNT(*) FROM {TableName}')
     Count = cursor.fetchall()[0][0]
     
     if Count == DataSize:
-        return 1
+        return True
     
     else:
-        return 0
+        return False
     
 if __name__ == "__main__":
     Data = FetchFromWeb(False, True)
